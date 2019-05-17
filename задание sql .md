@@ -106,6 +106,146 @@ mysql> SELECT * FROM books WHERE NOT id_author=5;
 
 
 
+Дз на субботу 
+1 товары, которых нет в корзине ( например 1)
+2 средний чек по трем корзинам
+3 максимальны и минимальный чек
+
+mysql> show tables;
++--------------------+
+| Tables_in_function |
++--------------------+
+| cart               |
+| cart_good          |
+| good               |
++--------------------+
+3 rows in set (0,01 sec)
+
+mysql> select * from cart;
++--------+
+| idCart |
++--------+
+|      1 |
+|      2 |
+|      3 |
++--------+
+3 rows in set (0,09 sec)
+
+mysql> select * from cart_good;
++--------+--------+--------+
+| idGood | idCart | amount |
++--------+--------+--------+
+|      1 |      1 |      2 |
+|      1 |      2 |      2 |
+|      2 |      1 |      2 |
+|      2 |      3 |      3 |
+|      3 |      1 |      2 |
+|      3 |      2 |      3 |
+|      3 |      3 |      3 |
+|      4 |      1 |      1 |
+|      4 |      2 |      4 |
+|      5 |      1 |      1 |
+|      5 |      3 |      1 |
++--------+--------+--------+
+11 rows in set (0,00 sec)
+
+mysql> select * from good;
++--------+--------------+--------+-------+
+| idGood | name         | amount | price |
++--------+--------------+--------+-------+
+|      1 | Шапка        |     10 |   400 |
+|      2 | Кеды         |      5 |   500 |
+|      3 | Лыжи         |      4 |   800 |
+|      4 | Пальто       |      2 |  1200 |
+|      5 | Носки        |     45 |   100 |
++--------+--------------+--------+-------+
+
+
+1 товары, которых нет в корзине ( например 1)
+CREATE VIEW view_cart AS select c.idCart, g.name, c.idGood
+from good g
+INNER JOIN  cart_good c where
+g.idGood=c.idGood AND c.idCart=2;
+CREATE VIEW v AS select c.idCart, SUM(c.amount*g.price)
+AS res FROM cart_good c, good g
+where c.idGood=g.idGood
+group by c.idCart having SUM(c.amount*g.price);
+
+
+3 максимальны и минимальный чек
+
+Создаем таблицу стоимости по заказм
+Записываем в представление
+
+CREATE VIEW view_cart AS select c.idCart, g.name, c.idGood
+from good g
+INNER JOIN  cart_good c where
+g.idGood=c.idGood AND c.idCart=2;
+
++--------+--------------+--------+
+| idCart | name         | idGood |
++--------+--------------+--------+
+|      2 | Шапка        |      1 |
+|      2 | Лыжи         |      3 |
+|      2 | Пальто       |      4 |
++--------+--------------+--------+
+
+select g.idGood, g.name as res from
+view_cart v
+right join good g
+on g.idGood=v.idGood
+where v.idGood is null;
+
+Товар которого нет в корзине.
++--------+------------+
+| idGood | res        |
++--------+------------+
+|      2 | Кеды       |
+|      5 | Носки      |
++--------+------------+
+
+
+mysql> select * from view_res;                                                                                                                 +--------+------+
+| idCart | res  |
++--------+------+
+|      1 | 4700 |
+|      2 | 8000 |
+|      3 | 4000 |
++--------+------+
+
+
+SELECT max(res) FROM view_res;
+
++----------+
+| max(res) |
++----------+
+|     8000 |
+
+SELECT MIN(res) FROM view_res;
++----------+
+| min(res) |
++----------+
+|     4000 |
+
+2 средний чек по трем корзинам
+
+SELECT AVG(res) as avereg_chek FROM view_res;
+
++---------------------+
+|  avereg_chek |
++---------------------+
+|           5566.6667 |
++---------------------+
+
+
+
+
+
+
+
+
+
+
 
 
 
